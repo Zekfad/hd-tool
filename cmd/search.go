@@ -18,6 +18,7 @@ var searchCmd = &cobra.Command{
 		target, err := strconv.ParseUint(args[1], 16, 64)
 		if err != nil {
 			fmt.Printf("failed to parse target: %s", err)
+			return
 		}
 
 		all, err := cmd.Flags().GetBool("all")
