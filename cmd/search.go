@@ -5,6 +5,7 @@ import (
 	"strconv"
 
 	"github.com/Zekfad/hd-tool/game_data"
+	"github.com/Zekfad/hd-tool/game_data/reader"
 	"github.com/spf13/cobra"
 )
 
@@ -30,10 +31,10 @@ var searchCmd = &cobra.Command{
 		targetType := game_data.TypeHash(target)
 
 	archives_loop:
-		for path, archive := range game_data.ArchivesFromDirectory(dirname) {
+		for path, archive := range reader.ArchivesFromDirectory(dirname) {
 			fmt.Println("Checking:", path)
-			for i, file := range archive.Files {
-				if targetType == file.Type {
+			for i, file := range archive.GetFiles() {
+				if targetType == file.GetType() {
 					fmt.Printf("Found match in archive: %s file %d\n", path, i)
 					if !all {
 						break archives_loop

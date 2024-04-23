@@ -1,6 +1,7 @@
 package game_data
 
 import (
+	"bytes"
 	"encoding/binary"
 
 	"github.com/ghostiam/binstruct"
@@ -29,4 +30,12 @@ func LuaResourceFromBytes(data []byte) (*LuaResource, error) {
 		return nil, err
 	}
 	return &resource, nil
+}
+
+func (resource LuaResource) ToBytes() ([]byte, error) {
+	b := new(bytes.Buffer)
+	binary.Write(b, binary.LittleEndian, uint32(len(resource.Data)))
+	binary.Write(b, binary.LittleEndian, uint32(resource.Format))
+	b.Write(resource.Data)
+	return b.Bytes(), nil
 }

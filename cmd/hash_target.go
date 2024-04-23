@@ -5,7 +5,7 @@ import (
 	"path/filepath"
 	"strconv"
 
-	"github.com/Zekfad/hd-tool/game_data"
+	"github.com/Zekfad/hd-tool/game_data/reader"
 	"github.com/Zekfad/hd-tool/hash_db"
 	"github.com/spf13/cobra"
 )
@@ -42,7 +42,7 @@ var targetCmd = &cobra.Command{
 
 		target := hash_db.HashDBTarget{}
 
-		for fullPath, archive := range game_data.ArchivesFromDirectory(dirname) {
+		for fullPath, archive := range reader.ArchivesFromDirectory(dirname) {
 			if includePackageName {
 				filename := filepath.Base(fullPath)
 				packageHash, err := strconv.ParseUint(filename, 16, 64)
@@ -53,12 +53,12 @@ var targetCmd = &cobra.Command{
 				}
 			}
 
-			for _, file := range archive.Files {
+			for _, file := range archive.GetFiles() {
 				if includeTypeName {
-					target[uint64(file.Type)] = true
+					target[uint64(file.GetType())] = true
 				}
 				if includeFileName {
-					target[file.Name] = true
+					target[file.GetName()] = true
 				}
 			}
 		}

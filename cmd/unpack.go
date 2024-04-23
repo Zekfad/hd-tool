@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 
 	"github.com/Zekfad/hd-tool/game_data"
+	"github.com/Zekfad/hd-tool/game_data/reader"
 	"github.com/Zekfad/hd-tool/hash_db"
 	"github.com/spf13/cobra"
 )
@@ -110,7 +111,7 @@ func unpackFile(name string, targetDirectory string, unknown bool, db hash_db.Ha
 			err,
 		)
 	}
-	archive, err := game_data.ArchiveFromFile(name)
+	archive, err := reader.ArchiveFromFile(name)
 	if err != nil {
 		return errors.Join(
 			fmt.Errorf("failed to read archive"),
@@ -118,18 +119,18 @@ func unpackFile(name string, targetDirectory string, unknown bool, db hash_db.Ha
 		)
 	}
 
-	fmt.Printf("Loaded archive of version: %#X\n", archive.Header.ArchiveVersion)
-	for _, entry := range archive.Files {
-		filename, dbHasName := db[uint64(entry.Name)]
+	fmt.Printf("Loaded archive of version: %#X\n", archive.GetVersion())
+	for _, entry := range archive.GetFiles() {
+		filename, dbHasName := db[uint64(entry.GetName())]
 		if !dbHasName {
-			filename = fmt.Sprintf("%016X", entry.Name)
+			filename = fmt.Sprintf("%016X", entry.GetName())
 		}
 		filePath := filepath.Join(targetDirectory, filename)
-		switch entry.Type {
+		switch entry.GetType() {
 		case game_data.Type_lua:
 			fmt.Printf("Found script %s ... ", filename)
 
-			lua, err := game_data.LuaResourceFromBytes(entry.InlineBuffer)
+			lua, err := game_data.LuaResourceFromBytes(entry.GetInlineBuffer())
 			if err != nil {
 				fmt.Printf("invalid: %s\n", err)
 				break
@@ -167,7 +168,7 @@ func unpackFile(name string, targetDirectory string, unknown bool, db hash_db.Ha
 				break
 			}
 			defer file.Close()
-			file.Write(entry.InlineBuffer)
+			file.Write(entry.GetInlineBuffer())
 		}
 	}
 	return nil
